@@ -1,7 +1,7 @@
 #SingleInstance, force
 #include vjoy_lib.ahk
 
-; Build Array with names of axes
+; Set the vjoy id of the stick to control
 vjoy_id := 1
 
 ; Init the vJoy stick
