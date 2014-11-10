@@ -12,8 +12,11 @@ Based on code by Axlar - http://www.autohotkey.com/board/topic/87690-
 
 
 
+Requirements
+============
+AutoHotkey obviously, but scripts can be compiled to remove this requirement.
 
-No dependencies other than a vJoy install.
+vJoy installed.
 
 Detects vJoy install folder from registry key.
 
