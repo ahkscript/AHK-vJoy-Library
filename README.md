@@ -11,6 +11,8 @@ Based on code by Axlar - http://www.autohotkey.com/board/topic/87690-
 
 
 
+
+
 No dependencies other than a vJoy install.
 
 Detects vJoy install folder from registry key.
