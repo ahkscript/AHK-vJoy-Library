@@ -877,26 +877,27 @@ RegRead64(sRootKey, sKeyName, sValueName = "", DataMaxSize=1024) {
     KEY_WOW64_64KEY := 0x0100   ; http://msdn.microsoft.com/en-gb/library/aa384129.aspx (do not redirect to Wow6432Node on 64-bit machines)
     KEY_SET_VALUE   := 0x0002
     KEY_WRITE       := 0x20006
+    ENC := A_IsUnicode?"W":"A"
+    hKey := "", sValueType := ""
 
     myhKey := %sRootKey%        ; pick out value (0x8000000x) from list of HKEY_xx vars
     IfEqual,myhKey,, {      ; Error - Invalid root key
         ErrorLevel := 3
         return ""
     }
-    
     RegAccessRight := KEY_QUERY_VALUE + KEY_WOW64_64KEY
-    
-    DllCall("Advapi32.dll\RegOpenKeyExA", "uint", myhKey, "str", sKeyName, "uint", 0, "uint", RegAccessRight, "uint*", hKey)    ; open key
-    DllCall("Advapi32.dll\RegQueryValueExA", "uint", hKey, "str", sValueName, "uint", 0, "uint*", sValueType, "uint", 0, "uint", 0)     ; get value type
+    ;VarSetCapacity(sValueType, 4)
+    DllCall("Advapi32.dll\RegOpenKeyEx" ENC, "uint", myhKey, "str", sKeyName, "uint", 0, "uint", RegAccessRight, "uint*", hKey)    ; open key
+    DllCall("Advapi32.dll\RegQueryValueEx" ENC, "uint", hKey, "str", sValueName, "uint", 0, "uint*", sValueType, "uint", 0, "uint", 0)     ; get value type
     If (sValueType == REG_SZ or sValueType == REG_EXPAND_SZ) {
         VarSetCapacity(sValue, vValueSize:=DataMaxSize)
-        DllCall("Advapi32.dll\RegQueryValueExA", "uint", hKey, "str", sValueName, "uint", 0, "uint", 0, "str", sValue, "uint*", vValueSize) ; get string or string-exp
+        DllCall("Advapi32.dll\RegQueryValueEx" ENC, "uint", hKey, "str", sValueName, "uint", 0, "uint", 0, "str", sValue, "uint*", vValueSize) ; get string or string-exp
     } Else If (sValueType == REG_DWORD) {
         VarSetCapacity(sValue, vValueSize:=4)
-        DllCall("Advapi32.dll\RegQueryValueExA", "uint", hKey, "str", sValueName, "uint", 0, "uint", 0, "uint*", sValue, "uint*", vValueSize)   ; get dword
+        DllCall("Advapi32.dll\RegQueryValueEx" ENC, "uint", hKey, "str", sValueName, "uint", 0, "uint", 0, "uint*", sValue, "uint*", vValueSize)   ; get dword
     } Else If (sValueType == REG_MULTI_SZ) {
         VarSetCapacity(sTmp, vValueSize:=DataMaxSize)
-        DllCall("Advapi32.dll\RegQueryValueExA", "uint", hKey, "str", sValueName, "uint", 0, "uint", 0, "str", sTmp, "uint*", vValueSize)   ; get string-mult
+        DllCall("Advapi32.dll\RegQueryValueEx" ENC, "uint", hKey, "str", sValueName, "uint", 0, "uint", 0, "str", sTmp, "uint*", vValueSize)   ; get string-mult
         sValue := ExtractData(&sTmp) "`n"
         Loop {
             If (errorLevel+2 >= &sTmp + vValueSize)
@@ -905,7 +906,7 @@ RegRead64(sRootKey, sKeyName, sValueName = "", DataMaxSize=1024) {
         }
     } Else If (sValueType == REG_BINARY) {
         VarSetCapacity(sTmp, vValueSize:=DataMaxSize)
-        DllCall("Advapi32.dll\RegQueryValueExA", "uint", hKey, "str", sValueName, "uint", 0, "uint", 0, "str", sTmp, "uint*", vValueSize)   ; get binary
+        DllCall("Advapi32.dll\RegQueryValueEx" ENC, "uint", hKey, "str", sValueName, "uint", 0, "uint", 0, "str", sTmp, "uint*", vValueSize)   ; get binary
         sValue := ""
         SetFormat, integer, h
         Loop %vValueSize% {
@@ -922,7 +923,7 @@ RegRead64(sRootKey, sKeyName, sValueName = "", DataMaxSize=1024) {
     DllCall("Advapi32.dll\RegCloseKey", "uint", hKey)
     return sValue
 }
-
+ 
 ExtractData(pointer) {  ; http://www.autohotkey.com/forum/viewtopic.php?p=91578#91578 SKAN
     Loop {
             errorLevel := ( pointer+(A_Index-1) )
