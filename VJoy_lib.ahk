@@ -125,7 +125,7 @@ Class VJoyDev {
            ;ToolTip, vJoy Device %dev_id% is free
             stat_str = VJD_STAT_FREE
         } else if (DeviceStatus = VJD_STAT_BUSY) {
-            MsgBox vJoy Device %dev_id% is already owned by another feeder`nCannot continue`n
+            ;MsgBox vJoy Device %dev_id% is already owned by another feeder`nCannot continue`n
             stat_str = VJD_STAT_BUSY
             return
         } else if (DeviceStatus = VJD_STAT_MISS) {
