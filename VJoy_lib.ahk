@@ -599,6 +599,9 @@ VJoy_GetBtn(id, btn_id) {
  
 VJoy_SetBtn(sw, id, btn_id) {
     Global VJDev
+    if (!VJDev[id].DeviceReady){
+        return False
+    }
     if (VJoy_DeviceErr(id))
         return False
     res := VJDev[id].SetBtn(sw, btn_id)
@@ -709,6 +712,9 @@ VJoy_SetAxis_SL1(axis_val, id) {
 ; for compatibility
 VJoy_SetAxis(axis_val, id, usage) {
     Global VJDev, HID_USAGE_X,HID_USAGE_Y,HID_USAGE_Z,HID_USAGE_RX,HID_USAGE_RY,HID_USAGE_RZ,HID_USAGE_SL0,HID_USAGE_SL1
+    if (!VJDev[id].DeviceReady){
+        return False
+    }
     if (VJoy_DeviceErr(id))
         return False
 
