@@ -43,27 +43,35 @@ VJoy_LoadLibrary() {
 
     DllFile := "vJoyInterface.dll"
 
-    ErrorReport := "Trying to locate correct " DllFile "...`nLooking in " vJoyFolder "... "
-    if (FileExist(vJoyFolder DllFile)){
+    x86 := "x86\"
+    x64 := "x64\"
+
+    ErrorReport := "Trying to locate correct " DllFile "...`nLooking in " vJoyFolder x64 " ... "
+    if (FileExist(vJoyFolder x64 DllFile)){
         ErrorReport .= "FOUND. Loading... "
-        ; Try loading DLL from main folder
-        hVJDLL := DLLCall("LoadLibrary", "Str", vJoyFolder DllFile)
-        if (!hVJDLL) {
+        ; Try loading DLL from x64 folder
+        hVJDLL := DLLCall("LoadLibrary", "Str", vJoyFolder x64 DllFile)
+        if (hVJDLL) {
+            ErrorReport .= "OK.`n"
+        } else {
             ErrorReport .= "FAILED.`n"
-            ErrorReport .= "Looking in " vJoyFolder "Feeder... "
-            if (FileExist(vJoyFolder "Feeder\" DllFile)){
-                ErrorReport .= "FOUND. Loading..."
-                ; Failed - Try loading DLL from "Feeder" folder. On x64 systems, this will contain an x86 DLL
-                hVJDLL := DLLCall("LoadLibrary", "Str", vJoyFolder "Feeder\" DllFile)
-                if (!hVJDLL) {
-                    ErrorReport .= "FAILED.`n"
-                }
-            } else {
-                ErrorReport .= "NOT FOUND.`n"
-            }
         }
     } else {
         ErrorReport .= "NOT FOUND.`n"
+    }
+    if (!hVJDLL){
+        ErrorReport .= "Looking in " vJoyFolder x86 " ... "
+        if (FileExist(vJoyFolder x86 DllFile)){
+            ErrorReport .= "FOUND. Loading..."
+            hVJDLL := DLLCall("LoadLibrary", "Str", vJoyFolder x86 DllFile)
+            if (hVJDLL) {
+                ErrorReport .= "OK.`n"
+            } else {
+                ErrorReport .= "FAILED.`n"
+            }
+        } else {
+            ErrorReport .= "NOT FOUND.`n"
+        }
     }
     if (!hVJDLL) {
         MsgBox % "Failed to load interface DLL.`n`n" ErrorReport
