@@ -18,10 +18,8 @@ AutoHotkey obviously, but scripts can be compiled to remove this requirement.
 
 vJoy installed.
 
-Detects vJoy install folder from registry key.
+Detects if vJoy installed by checking registry key.
 
-Uses vJoyInterface.dll from vJoy install folder.
-
-If vJoyInterface.dll load fails, tries Feeder\vJoyInterface.dll (Should be a x86 DLL on an x64 System).
+Locates correct (x86 /x64) vJoyInterface.dll from Registry key.
 
 Warns user if no DLL found / all failed to load, and optionally launches browser window to vJoy site.
