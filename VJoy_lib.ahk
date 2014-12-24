@@ -41,16 +41,36 @@ VJoy_LoadLibrary() {
         ExitApp
     }
 
+    ; Try to find location of correct DLL.
+    ; vJoy versions prior to 2.0.4 241214 lack these registry keys - if key not found, advise update.
+    if (A_PtrSize == 8){
+        ; 64-Bit AHK
+        DllFolder := RegRead64("HKEY_LOCAL_MACHINE", "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{8E31F76F-74C3-47F1-9550-E041EEDC5FBB}_is1", "DllX64Location")
+    } else {
+        ; 32-Bit AHK
+        DllFolder := RegRead64("HKEY_LOCAL_MACHINE", "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{8E31F76F-74C3-47F1-9550-E041EEDC5FBB}_is1", "DllX86Location")
+    }
+
+    if (!DllFolder){
+        ; Could not find registry entry. Advise vJoy update.
+        msgbox, 4, ERROR, % "A vJoy install was found in " vJoyFolder ", but it appears to be an old version.`nPlease update vJoy to the latest version from `n`nhttp://vjoystick.sourceforge.net.`n`nDo you wish to open a browser window to the site now?"
+        IfMsgBox, Yes
+            Run http://vjoystick.sourceforge.net
+        ExitApp
+    }
+
+    DllFolder .= "\"
+
     DllFile := "vJoyInterface.dll"
 
     x86 := "x86\"
     x64 := "x64\"
 
-    ErrorReport := "Trying to locate correct " DllFile "...`nLooking in " vJoyFolder x64 " ... "
-    if (FileExist(vJoyFolder x64 DllFile)){
+    ErrorReport := "Trying to locate correct " DllFile "...`nLooking in " DllFolder " ... "
+    if (FileExist(DllFolder DllFile)){
         ErrorReport .= "FOUND. Loading... "
         ; Try loading DLL from x64 folder
-        hVJDLL := DLLCall("LoadLibrary", "Str", vJoyFolder x64 DllFile)
+        hVJDLL := DLLCall("LoadLibrary", "Str", DllFolder DllFile)
         if (hVJDLL) {
             ErrorReport .= "OK.`n"
         } else {
@@ -58,20 +78,6 @@ VJoy_LoadLibrary() {
         }
     } else {
         ErrorReport .= "NOT FOUND.`n"
-    }
-    if (!hVJDLL){
-        ErrorReport .= "Looking in " vJoyFolder x86 " ... "
-        if (FileExist(vJoyFolder x86 DllFile)){
-            ErrorReport .= "FOUND. Loading..."
-            hVJDLL := DLLCall("LoadLibrary", "Str", vJoyFolder x86 DllFile)
-            if (hVJDLL) {
-                ErrorReport .= "OK.`n"
-            } else {
-                ErrorReport .= "FAILED.`n"
-            }
-        } else {
-            ErrorReport .= "NOT FOUND.`n"
-        }
     }
     if (!hVJDLL) {
         MsgBox % "Failed to load interface DLL.`n`n" ErrorReport
