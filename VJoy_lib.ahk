@@ -24,6 +24,10 @@
     HID_USAGE_SL1:= 0x37
  
     VJDev := Object()
+
+IsDir(path) {
+    return InStr(FileExist(path), "D")
+}
  
 ; Load lib from already load or current/system directory
 VJoy_LoadLibrary() {
@@ -49,6 +53,14 @@ VJoy_LoadLibrary() {
     } else {
         ; 32-Bit AHK
         DllFolder .= "x86\"
+    }
+
+    if (!IsDir(DllFolder)){
+        ; Could not find registry entry. Advise vJoy update.
+        msgbox, 4, ERROR, % "A vJoy install was found in " vJoyFolder ", but it appears to be an old version.`nPlease update vJoy to the latest version from `n`nhttp://vjoystick.sourceforge.net.`n`nDo you wish to open a browser window to the site now?"
+        IfMsgBox, Yes
+            Run http://vjoystick.sourceforge.net
+        ExitApp
     }
 
     DllFile := "vJoyInterface.dll"
