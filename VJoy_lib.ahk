@@ -24,6 +24,10 @@
     HID_USAGE_SL1:= 0x37
  
     VJDev := Object()
+
+IsDir(path) {
+    return InStr(FileExist(path), "D")
+}
  
 ; Load lib from already load or current/system directory
 VJoy_LoadLibrary() {
@@ -41,17 +45,17 @@ VJoy_LoadLibrary() {
         ExitApp
     }
 
-    ; Try to find location of correct DLL.
-    ; vJoy versions prior to 2.0.4 241214 lack these registry keys - if key not found, advise update.
+    DllFolder := vJoyFolder 
+
     if (A_PtrSize == 8){
         ; 64-Bit AHK
-        DllFolder := RegRead64("HKEY_LOCAL_MACHINE", "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{8E31F76F-74C3-47F1-9550-E041EEDC5FBB}_is1", "DllX64Location")
+        DllFolder .= "x64\"
     } else {
         ; 32-Bit AHK
-        DllFolder := RegRead64("HKEY_LOCAL_MACHINE", "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{8E31F76F-74C3-47F1-9550-E041EEDC5FBB}_is1", "DllX86Location")
+        DllFolder .= "x86\"
     }
 
-    if (!DllFolder){
+    if (!IsDir(DllFolder)){
         ; Could not find registry entry. Advise vJoy update.
         msgbox, 4, ERROR, % "A vJoy install was found in " vJoyFolder ", but it appears to be an old version.`nPlease update vJoy to the latest version from `n`nhttp://vjoystick.sourceforge.net.`n`nDo you wish to open a browser window to the site now?"
         IfMsgBox, Yes
@@ -59,12 +63,7 @@ VJoy_LoadLibrary() {
         ExitApp
     }
 
-    DllFolder .= "\"
-
     DllFile := "vJoyInterface.dll"
-
-    x86 := "x86\"
-    x64 := "x64\"
 
     ErrorReport := "Trying to locate correct " DllFile "...`nLooking in " DllFolder " ... "
     if (FileExist(DllFolder DllFile)){
